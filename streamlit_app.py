@@ -66,17 +66,24 @@ model_name = st.sidebar.selectbox(
         "Random Forest",
         "XGBoost"
     ]
-)
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
 
-uploaded_file = st.sidebar.file_uploader(
-    "Upload Test Dataset (CSV)",
-    type=["csv"]
-)
-st.subheader("📄 Uploaded Dataset Preview")
+    st.subheader("📄 Uploaded Dataset Preview")
+    with st.expander("Click to view dataset"):
+        st.write("Shape:", df.shape)
+        st.dataframe(df.head(10))
 
-with st.expander("Click to view dataset"):
-    st.write("Shape:", df.shape)
-    st.dataframe(df.head(10))
+    if "Y" not in df.columns:
+        st.error("Uploaded CSV must contain target column 'Y'")
+    else:
+        X = df.drop("Y", axis=1)
+        y_true = df["Y"]
+
+        # continue with preprocessing, prediction, metrics...
+else:
+    st.info("👈 Upload a CSV file from the sidebar to begin prediction.")
+
 # -------------------------------
 # Main logic
 # -------------------------------
