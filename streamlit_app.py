@@ -42,12 +42,12 @@ preprocessor = load_preprocessor()
 @st.cache_resource
 def load_model(model_name):
     model_paths = {
-        "Logistic Regression": "saved_models/logistic.pkl",
-        "Decision Tree": "saved_models/decision_tree.pkl",
-        "K-Nearest Neighbors": "saved_models/knn.pkl",
-        "Naive Bayes": "saved_models/naive_bayes.pkl",
-        "Random Forest": "saved_models/random_forest.pkl",
-        "XGBoost": "saved_models/xgboost.pkl"
+        "Logistic Regression": "saved_model/logistic.pkl",
+        "Decision Tree": "saved_model/decision_tree.pkl",
+        "K-Nearest Neighbors": "saved_model/knn.pkl",
+        "Naive Bayes": "saved_model/naive_bayes.pkl",
+        "Random Forest": "saved_model/random_forest.pkl",
+        "XGBoost": "saved_model/xgboost.pkl"
     }
     return joblib.load(model_paths[model_name])
 
