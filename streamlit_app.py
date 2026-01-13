@@ -66,6 +66,7 @@ model_name = st.sidebar.selectbox(
         "Random Forest",
         "XGBoost"
     ]
+)
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
 
