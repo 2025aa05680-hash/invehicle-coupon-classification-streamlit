@@ -72,6 +72,7 @@ uploaded_file = st.sidebar.file_uploader(
     type=["csv"]
 )
 if uploaded_file is not None:
+    uploaded_file.seek(0)
     df = pd.read_csv(uploaded_file)
 
     st.subheader("📄 Uploaded Dataset Preview")
@@ -164,6 +165,3 @@ if uploaded_file is not None:
                 ax.text(j, i, cm[i, j], ha="center", va="center")
 
         st.pyplot(fig)
-
-else:
-    st.info("Upload a CSV file from the sidebar to begin prediction.")
