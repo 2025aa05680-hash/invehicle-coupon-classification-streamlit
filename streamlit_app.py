@@ -32,7 +32,7 @@ st.write(
 # -------------------------------
 @st.cache_resource
 def load_preprocessor():
-    return joblib.load("saved_models/preprocessor.pkl")
+    return joblib.load("saved_model/preprocessor.pkl")
 
 preprocessor = load_preprocessor()
 
