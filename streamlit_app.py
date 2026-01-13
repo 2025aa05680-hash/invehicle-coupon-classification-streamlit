@@ -47,7 +47,7 @@ def load_model(model_name):
         "K-Nearest Neighbors": "saved_model/knn.pkl",
         "Naive Bayes": "saved_model/naive_bayes.pkl",
         "Random Forest": "saved_model/random_forest.pkl",
-        "XGBoost": "saved_model/xgboost.pkl"
+        "XGBoost": "saved_model/XGBoost.pkl"
     }
     return joblib.load(model_paths[model_name])
 
@@ -72,7 +72,11 @@ uploaded_file = st.sidebar.file_uploader(
     "Upload Test Dataset (CSV)",
     type=["csv"]
 )
+st.subheader("📄 Uploaded Dataset Preview")
 
+with st.expander("Click to view dataset"):
+    st.write("Shape:", df.shape)
+    st.dataframe(df.head(10))
 # -------------------------------
 # Main logic
 # -------------------------------
