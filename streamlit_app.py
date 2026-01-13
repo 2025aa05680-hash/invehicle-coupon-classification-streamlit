@@ -132,22 +132,7 @@ if "Y" not in df.columns:
 X = df.drop("Y", axis=1)
 y_true = df["Y"]
 
-# --------------------------------------------------
-# Classification Report
-# --------------------------------------------------
-st.subheader("📑 Classification Report")
 
-report = classification_report(
-    y_true,
-    y_pred,
-    output_dict=True
-)
-
-report_df = pd.DataFrame(report).transpose()
-
-st.dataframe(
-    report_df.style.format("{:.4f}")
-)
 # --------------------------------------------------
 # Preprocessing
 # --------------------------------------------------
@@ -187,6 +172,23 @@ col2.metric("Recall", f"{recall:.4f}")
 
 col3.metric("F1 Score", f"{f1:.4f}")
 col3.metric("MCC", f"{mcc:.4f}")
+
+# --------------------------------------------------
+# Classification Report
+# --------------------------------------------------
+st.subheader("📑 Classification Report")
+
+report = classification_report(
+    y_true,
+    y_pred,
+    output_dict=True
+)
+
+report_df = pd.DataFrame(report).transpose()
+
+st.dataframe(
+    report_df.style.format("{:.4f}")
+)
 
 # --------------------------------------------------
 # Confusion Matrix
