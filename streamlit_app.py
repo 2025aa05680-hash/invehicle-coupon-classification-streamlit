@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report
 
 from sklearn.metrics import (
     accuracy_score,
@@ -48,7 +49,7 @@ def load_model(model_name):
         "K-Nearest Neighbors": "saved_model/knn.pkl",
         "Naive Bayes": "saved_model/naive_bayes.pkl",
         "Random Forest": "saved_model/random_forest.pkl",
-        "XGBoost": "saved_model/xgboost.pkl"
+        "XGBoost": "saved_model/XGBoost.pkl"
     }
     return joblib.load(model_paths[model_name])
 
@@ -132,19 +133,21 @@ X = df.drop("Y", axis=1)
 y_true = df["Y"]
 
 # --------------------------------------------------
-# Class Distribution
+# Classification Report
 # --------------------------------------------------
-st.subheader("📊 Target Class Distribution")
+st.subheader("📑 Classification Report")
 
-class_counts = y_true.value_counts()
+report = classification_report(
+    y_true,
+    y_pred,
+    output_dict=True
+)
 
-fig_dist, ax_dist = plt.subplots()
-ax_dist.bar(class_counts.index.astype(str), class_counts.values)
-ax_dist.set_xlabel("Class (0 = Reject, 1 = Accept)")
-ax_dist.set_ylabel("Count")
-ax_dist.set_title("Coupon Acceptance Distribution")
-st.pyplot(fig_dist)
+report_df = pd.DataFrame(report).transpose()
 
+st.dataframe(
+    report_df.style.format("{:.4f}")
+)
 # --------------------------------------------------
 # Preprocessing
 # --------------------------------------------------
