@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import matplotlib.pyplot as plt
+
 from sklearn.metrics import (
     accuracy_score,
     roc_auc_score,
@@ -13,32 +14,32 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-# -------------------------------
+# --------------------------------------------------
 # Page configuration
-# -------------------------------
+# --------------------------------------------------
 st.set_page_config(
     page_title="In-Vehicle Coupon Recommendation",
     layout="wide"
 )
 
 st.title("🚗 In-Vehicle Coupon Recommendation System")
-st.write(
-    "This application predicts whether a user will accept or reject a coupon "
-    "using different machine learning classification models."
+st.markdown(
+    """
+    This interactive application predicts whether a user will **accept or reject a coupon**
+    based on contextual and behavioral features using multiple machine learning models.
+    """
 )
 
-# -------------------------------
+# --------------------------------------------------
 # Load preprocessor
-# -------------------------------
+# --------------------------------------------------
 @st.cache_resource
 def load_preprocessor():
     return joblib.load("saved_model/preprocessor.pkl")
 
-preprocessor = load_preprocessor()
-
-# -------------------------------
-# Model loader
-# -------------------------------
+# --------------------------------------------------
+# Load model
+# --------------------------------------------------
 @st.cache_resource
 def load_model(model_name):
     model_paths = {
@@ -47,17 +48,19 @@ def load_model(model_name):
         "K-Nearest Neighbors": "saved_model/knn.pkl",
         "Naive Bayes": "saved_model/naive_bayes.pkl",
         "Random Forest": "saved_model/random_forest.pkl",
-        "XGBoost": "saved_model/XGBoost.pkl"
+        "XGBoost": "saved_model/xgboost.pkl"
     }
     return joblib.load(model_paths[model_name])
 
-# -------------------------------
+preprocessor = load_preprocessor()
+
+# --------------------------------------------------
 # Sidebar
-# -------------------------------
+# --------------------------------------------------
 st.sidebar.header("⚙️ Configuration")
 
 model_name = st.sidebar.selectbox(
-    "Select Model",
+    "Select Classification Model",
     [
         "Logistic Regression",
         "Decision Tree",
@@ -67,101 +70,166 @@ model_name = st.sidebar.selectbox(
         "XGBoost"
     ]
 )
+
+threshold = st.sidebar.slider(
+    "Prediction Threshold",
+    min_value=0.1,
+    max_value=0.9,
+    value=0.5,
+    step=0.05
+)
+
+st.sidebar.markdown(
+    """
+    **Threshold Tip:**  
+    Lower values increase Recall,  
+    Higher values increase Precision.
+    """
+)
+
 uploaded_file = st.sidebar.file_uploader(
     "Upload Test Dataset (CSV)",
     type=["csv"]
 )
-if uploaded_file is not None:
+
+# --------------------------------------------------
+# Stop if no file uploaded
+# --------------------------------------------------
+if uploaded_file is None:
+    st.info("👈 Upload a CSV file from the sidebar to begin.")
+    st.stop()
+
+# --------------------------------------------------
+# Safe CSV loading
+# --------------------------------------------------
+try:
     uploaded_file.seek(0)
     df = pd.read_csv(uploaded_file)
+except Exception as e:
+    st.error(f"Error reading CSV file: {e}")
+    st.stop()
 
-    st.subheader("📄 Uploaded Dataset Preview")
-    with st.expander("Click to view dataset"):
-        st.write("Shape:", df.shape)
-        st.dataframe(df.head(10))
+if df.empty:
+    st.error("Uploaded CSV file is empty.")
+    st.stop()
 
-    if "Y" not in df.columns:
-        st.error("Uploaded CSV must contain target column 'Y'")
-    else:
-        X = df.drop("Y", axis=1)
-        y_true = df["Y"]
+# --------------------------------------------------
+# Dataset Preview
+# --------------------------------------------------
+st.subheader("📄 Uploaded Dataset Preview")
+with st.expander("Click to view dataset"):
+    st.write("Shape:", df.shape)
+    st.dataframe(df.head(10))
 
-        # continue with preprocessing, prediction, metrics...
-else:
-    st.info("👈 Upload a CSV file from the sidebar to begin prediction.")
+# --------------------------------------------------
+# Target validation
+# --------------------------------------------------
+if "Y" not in df.columns:
+    st.error("Uploaded CSV must contain target column **'Y'**")
+    st.stop()
 
-# -------------------------------
-# Main logic
-# -------------------------------
-if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+X = df.drop("Y", axis=1)
+y_true = df["Y"]
 
-    if "Y" not in df.columns:
-        st.error("Uploaded CSV must contain target column 'Y'")
-    else:
-        X = df.drop("Y", axis=1)
-        y_true = df["Y"]
+# --------------------------------------------------
+# Class Distribution
+# --------------------------------------------------
+st.subheader("📊 Target Class Distribution")
 
-        # Preprocess input
-        X_processed = preprocessor.transform(X)
+class_counts = y_true.value_counts()
 
-        # Load selected model
-        model = load_model(model_name)
+fig_dist, ax_dist = plt.subplots()
+ax_dist.bar(class_counts.index.astype(str), class_counts.values)
+ax_dist.set_xlabel("Class (0 = Reject, 1 = Accept)")
+ax_dist.set_ylabel("Count")
+ax_dist.set_title("Coupon Acceptance Distribution")
+st.pyplot(fig_dist)
 
-        # Handle Gaussian Naive Bayes dense input
-        if model_name == "Naive Bayes":
-            X_processed = X_processed.toarray()
+# --------------------------------------------------
+# Preprocessing
+# --------------------------------------------------
+X_processed = preprocessor.transform(X)
 
-        # Predictions
-        y_pred = model.predict(X_processed)
+# Load model
+model = load_model(model_name)
 
-        if hasattr(model, "predict_proba"):
-            y_prob = model.predict_proba(X_processed)[:, 1]
-        else:
-            y_prob = None
+# Gaussian Naive Bayes needs dense input
+if model_name == "Naive Bayes":
+    X_processed = X_processed.toarray()
 
-        # -------------------------------
-        # Metrics
-        # -------------------------------
-        accuracy = accuracy_score(y_true, y_pred)
-        precision = precision_score(y_true, y_pred)
-        recall = recall_score(y_true, y_pred)
-        f1 = f1_score(y_true, y_pred)
-        mcc = matthews_corrcoef(y_true, y_pred)
+# --------------------------------------------------
+# Predictions
+# --------------------------------------------------
+y_prob = model.predict_proba(X_processed)[:, 1]
+y_pred = (y_prob >= threshold).astype(int)
 
-        if y_prob is not None:
-            auc = roc_auc_score(y_true, y_prob)
-        else:
-            auc = np.nan
+# --------------------------------------------------
+# Metrics
+# --------------------------------------------------
+accuracy = accuracy_score(y_true, y_pred)
+precision = precision_score(y_true, y_pred)
+recall = recall_score(y_true, y_pred)
+f1 = f1_score(y_true, y_pred)
+mcc = matthews_corrcoef(y_true, y_pred)
+auc = roc_auc_score(y_true, y_prob)
 
-        st.subheader(f"📊 Model Performance: {model_name}")
+st.subheader(f"📊 Model Performance: {model_name}")
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Accuracy", f"{accuracy:.4f}")
-        col1.metric("AUC", f"{auc:.4f}")
+col1, col2, col3 = st.columns(3)
+col1.metric("Accuracy", f"{accuracy:.4f}")
+col1.metric("AUC", f"{auc:.4f}")
 
-        col2.metric("Precision", f"{precision:.4f}")
-        col2.metric("Recall", f"{recall:.4f}")
+col2.metric("Precision", f"{precision:.4f}")
+col2.metric("Recall", f"{recall:.4f}")
 
-        col3.metric("F1 Score", f"{f1:.4f}")
-        col3.metric("MCC", f"{mcc:.4f}")
+col3.metric("F1 Score", f"{f1:.4f}")
+col3.metric("MCC", f"{mcc:.4f}")
 
-        # -------------------------------
-        # Confusion Matrix
-        # -------------------------------
-        st.subheader("🔍 Confusion Matrix")
+# --------------------------------------------------
+# Confusion Matrix
+# --------------------------------------------------
+st.subheader("🔍 Confusion Matrix")
 
-        cm = confusion_matrix(y_true, y_pred)
+cm = confusion_matrix(y_true, y_pred)
+fig_cm, ax_cm = plt.subplots()
+ax_cm.imshow(cm)
+ax_cm.set_xlabel("Predicted Label")
+ax_cm.set_ylabel("True Label")
+ax_cm.set_title("Confusion Matrix")
 
-        fig, ax = plt.subplots()
-        im = ax.imshow(cm)
+for i in range(cm.shape[0]):
+    for j in range(cm.shape[1]):
+        ax_cm.text(j, i, cm[i, j], ha="center", va="center")
 
-        ax.set_xlabel("Predicted Label")
-        ax.set_ylabel("True Label")
-        ax.set_title("Confusion Matrix")
+st.pyplot(fig_cm)
 
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                ax.text(j, i, cm[i, j], ha="center", va="center")
+# --------------------------------------------------
+# Download Predictions
+# --------------------------------------------------
+st.subheader("⬇️ Download Predictions")
 
-        st.pyplot(fig)
+output_df = df.copy()
+output_df["Predicted_Y"] = y_pred
+output_df["Prediction_Probability"] = y_prob
+
+st.download_button(
+    label="Download Predictions as CSV",
+    data=output_df.to_csv(index=False),
+    file_name="coupon_predictions.csv",
+    mime="text/csv"
+)
+
+# --------------------------------------------------
+# Metric Explanation
+# --------------------------------------------------
+with st.expander("ℹ️ Metric Explanation"):
+    st.markdown(
+        """
+        - **Accuracy**: Overall correctness  
+        - **AUC**: Ability to distinguish accept vs reject  
+        - **Precision**: Correct accept predictions  
+        - **Recall**: Captured actual accepts  
+        - **F1 Score**: Balance of precision & recall  
+        - **MCC**: Robust metric for imbalanced data
+        """
+    )
