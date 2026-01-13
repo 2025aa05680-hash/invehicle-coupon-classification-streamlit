@@ -96,7 +96,7 @@ The application is deployed using Streamlit Community Cloud and can be accessed 
   -Models were implemented and executed on BITS Virtual Lab
   -A screenshot of execution has been included in the final submission PDF as proof
 
-**h.Conclusion**
+**h. Conclusion**
 
 This project demonstrates a complete end-to-end machine learning workflow, including dataset selection, model implementation, performance evaluation, and web-based deployment.
 
