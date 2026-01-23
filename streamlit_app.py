@@ -14,6 +14,9 @@ from sklearn.metrics import (
     matthews_corrcoef,
     confusion_matrix
 )
+@st.cache_data
+def load_sample_test_csv():
+    return pd.read_csv("test_data_streamlit.csv")
 
 # --------------------------------------------------
 # Page configuration
@@ -113,6 +116,21 @@ except Exception as e:
 if df.empty:
     st.error("Uploaded CSV file is empty.")
     st.stop()
+
+st.sidebar.markdown("---")
+st.sidebar.subheader("📥 Sample Test Data")
+
+try:
+    sample_df = load_sample_test_csv()
+
+    st.sidebar.download_button(
+        label="Download Sample Test CSV",
+        data=sample_df.to_csv(index=False),
+        file_name="test_data_streamlit.csv",
+        mime="text/csv"
+    )
+except FileNotFoundError:
+    st.sidebar.warning("Sample test CSV not found.")
 
 # --------------------------------------------------
 # Dataset Preview
