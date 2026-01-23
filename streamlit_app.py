@@ -115,7 +115,7 @@ uploaded_file = st.sidebar.file_uploader(
 # Stop if no file uploaded
 # --------------------------------------------------
 if uploaded_file is None:
-    st.info("👈 Upload a CSV file from the sidebar to begin.")
+    st.info("👈 Download and Upload the Test CSV file from the sidebar to begin.")
     st.stop()
 
 # --------------------------------------------------
