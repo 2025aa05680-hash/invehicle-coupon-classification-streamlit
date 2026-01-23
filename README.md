@@ -42,33 +42,36 @@ Each model was evaluated using six standard classification metrics.
   
 **c.2 Performance Comparison Table**
     
-  | ML Model                 | Accuracy | AUC | Precision | Recall | F1 Score | MCC |
-  | ------------------------ | -------- | --- | --------- | ------ | -------- | --- |
-  | Logistic Regression      |          |     |           |        |          |     |
-  | Decision Tree            |          |     |           |        |          |     |
-  | K-Nearest Neighbors      |          |     |           |        |          |     |
-  | Naive Bayes              |          |     |           |        |          |     |
-  | Random Forest (Ensemble) |          |     |           |        |          |     |
-  | XGBoost (Ensemble)       |          |     |           |        |          |     |
+| Model               | Accuracy  | AUC       | Precision | Recall    | F1 Score  | MCC       |
+| ------------------- | --------- | --------- | --------- | --------- | --------- | --------- |
+| Logistic Regression | 0.687     | 0.734     | 0.702     | 0.780     | 0.739     | 0.353     |
+| Decision Tree       | 0.678     | 0.674     | 0.720     | 0.710     | 0.715     | 0.345     |
+| KNN                 | 0.678     | 0.674     | 0.720     | 0.710     | 0.715     | 0.345     |
+| Naive Bayes         | 0.616     | 0.658     | 0.695     | 0.578     | 0.631     | 0.241     |
+| Random Forest       | 0.736     | 0.793     | 0.731     | 0.846     | 0.785     | 0.456     |
+| XGBoost             | 0.738     | 0.813     | 0.772     | 0.766     | 0.769     | 0.467     |
+
   (Metrics are computed on the test dataset.)
 
 **c.3 Model Observations**
 
-  | ML Model Name            | Observation about Model Performance                                                                                          |
-  | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-  | Logistic Regression      | Performed reasonably well as a baseline model but struggled to capture complex non-linear relationships present in the data. |
-  | Decision Tree            | Captured non-linear patterns but showed signs of overfitting compared to ensemble methods.                                   |
-  | K-Nearest Neighbors      | Performance was sensitive to the choice of K and feature scaling, with moderate accuracy overall.                            |
-  | Naive Bayes              | Fast and efficient but based on strong independence assumptions, leading to comparatively lower performance.                 |
-  | Random Forest (Ensemble) | Achieved strong overall performance by reducing overfitting and handling feature interactions effectively.                   |
-  | XGBoost (Ensemble)       | Delivered the best performance across most metrics due to gradient boosting and regularization capabilities.                 |
+ | **ML Model Name**             | **Observation about Model Performance**                                                                                                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Logistic Regression**       | Served as a strong baseline model with good recall, indicating its ability to correctly identify coupon acceptance cases, but showed limited discriminative power compared to ensemble models. |
+| **Decision Tree**             | Captured non-linear relationships in the data but showed moderate performance and signs of overfitting, resulting in lower AUC and MCC values.                                                 |
+| **K-Nearest Neighbors (KNN)** | Demonstrated similar performance to Decision Tree, indicating sensitivity to feature scaling and limited effectiveness on high-dimensional encoded data.                                       |
+| **Naive Bayes (Gaussian)**    | Fast and simple probabilistic model, but strong feature independence assumptions led to the weakest overall performance across most evaluation metrics.                                        |
+| **Random Forest (Ensemble)**  | Achieved strong performance with the highest recall, effectively identifying coupon acceptance cases while reducing overfitting through ensemble learning.                                     |
+| **XGBoost (Ensemble)**        | Delivered the best overall performance with the highest AUC and MCC, providing the most balanced and robust predictions across all evaluated metrics.                                          |
 
 **d. Streamlit Web Application**
 
   An interactive Streamlit web application was developed and deployed using Streamlit Community Cloud.
   **Key Features:**
+  CSV file download option (test data)
   CSV file upload option (test data)
   Dropdown menu for model selection
+  Prediction Threshold Scrollbar
   Display of evaluation metrics
   Confusion matrix / classification report for selected model
   The application allows users to experiment with different models and visually analyze their performance.
@@ -86,8 +89,9 @@ project-folder/
 │   │-- naive_bayes.py
 │   │-- random_forest.py
 │   │-- xgboost.py
-|-- in-vehicle-coupon-recommendation.csv
-|-- test_data_streamlit.csv
+|-- data/
+|   |--in-vehicle-coupon-recommendation.csv
+|   |--test_data_streamlit.csv
 
 **f. Deployment**
 
