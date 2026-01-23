@@ -86,6 +86,8 @@ project-folder/
 │   │-- naive_bayes.py
 │   │-- random_forest.py
 │   │-- xgboost.py
+|-- in-vehicle-coupon-recommendation.csv
+|-- test_data_streamlit.csv
 
 **f. Deployment**
 
