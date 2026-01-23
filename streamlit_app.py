@@ -16,7 +16,7 @@ from sklearn.metrics import (
 )
 @st.cache_data
 def load_sample_test_csv():
-    return pd.read_csv("test_data_streamlit.csv")
+    return pd.read_csv("data/test_data_streamlit.csv")
 
 # --------------------------------------------------
 # Page configuration
@@ -99,7 +99,7 @@ try:
     st.sidebar.download_button(
         label="Download Sample Test CSV",
         data=sample_df.to_csv(index=False),
-        file_name="test_data_streamlit.csv",
+        file_name="data/test_data_streamlit.csv",
         mime="text/csv"
     )
 except FileNotFoundError:
