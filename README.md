@@ -19,7 +19,7 @@ This project implements classical and ensemble classification algorithms and dep
     - Categorical (e.g., destination, weather, time, coupon type)
     - Numerical (e.g., age, income, temperature)
 
-The dataset contains contextual information about the user, vehicle, environment, and coupon attributes, making it suitable for evaluating multiple machine learning models.
+The dataset used in this project is the In-Vehicle Coupon Recommendation dataset, which captures contextual, demographic, and behavioral information to predict whether a user will accept or reject a coupon while driving.
 
 **c. Machine Learning Models Used and Evaluation**
 
